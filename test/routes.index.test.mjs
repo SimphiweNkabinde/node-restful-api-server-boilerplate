@@ -1,4 +1,4 @@
-import { should, use } from "chai";
+import { use, expect } from "chai";
 import chaiHttp from 'chai-http';
 const chai = use(chaiHttp);
 
@@ -13,12 +13,12 @@ describe('routes: index', () => {
         it('should return json', (done) => {
             chai.request.execute(server)
             .get('/')
-            .end((err, res) => {
-                should.not.exist(err);
-                res.status.should.eql(200);
-                res.type.should.eql('application/json');
-                res.body.status.should.equal('success');
-                res.body.message.should.eql('hello, world');
+            .end((err, res) => {                
+                expect(err).to.be.null;
+                expect(res.status).to.equal(200);
+                expect(res.type).to.equal('application/json');
+                expect(res.body.status).to.equal('success');
+                expect(res.body.message).to.equal('hello, world');
                 done();
             })
         });
