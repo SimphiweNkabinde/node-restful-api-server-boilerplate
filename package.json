@@ -4,8 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node src/index.js",
-    "test": "mocha"
+    "start": "NODE_ENV=development nodemon src/index.js",
+    "test": "NODE_ENV=test mocha",
+    "migrate": "knex migrate:latest",
+    "seed": "knex seed:run"
   },
   "keywords": [],
   "author": "",
@@ -13,9 +15,13 @@
   "devDependencies": {
     "chai": "*",
     "chai-http": "^5.1.1",
-    "mocha": "*"
+    "mocha": "*",
+    "nodemon": "^3.1.9"
   },
   "dependencies": {
-    "koa": "^2.15.3"
+    "dotenv": "^16.4.7",
+    "knex": "^3.1.0",
+    "koa": "^2.15.3",
+    "pg": "^8.13.1"
   }
 }
