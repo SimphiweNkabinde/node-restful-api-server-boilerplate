@@ -2,7 +2,7 @@ const Router = require('koa-router');
 const router = new Router();
 const movieController = require('./controller.js');
 const { create: createMovieSchema, update: updateMovieSchema } = require('./schemas.js');
-const { validationError, notFound } = require('../utils/errorResponse.js');
+const { ValidationError, NotFoundError } = require('../utils/errors.js');
 
 const BASEURL = '/api/v1/movies';
 
@@ -21,7 +21,7 @@ router.get(`${BASEURL}/:id`, async (ctx) => {
     try {
         const movie = await movieController.getOne(ctx.params.id)
         if (!movie.length) {
-            notFound(ctx, 'movie not found');
+            return new NotFoundError('movie not found');
         } else {
             ctx.body = {data: movie[0]}
         }
@@ -38,7 +38,7 @@ router.post(BASEURL, async (ctx) => {
         await createMovieSchema.validate(ctx.request.body, { stripUnknown: true })
         .then(value => strippedBody = value);
     } catch (error) {
-        return validationError(ctx, error.message);
+        return new ValidationError(error.message)
     }
 
     try {
@@ -47,8 +47,9 @@ router.post(BASEURL, async (ctx) => {
         ctx.body = { data: movie[0] };
     } catch (error) {
         // UNIQUE CONSTRAINT VIOLATION error
-        if (error.code == 23505)
-            return validationError(ctx, error.detail)
+        if (error.code == 23505) {
+            return new ValidationError(error.detail)
+        }
         
         throw error;
     }
@@ -62,19 +63,19 @@ router.put(`${BASEURL}/:id`, async (ctx) => {
         await updateMovieSchema.validate(ctx.request.body, { stripUnknown: true })
         .then(value => strippedBody = value);
     } catch (error) {
-        return validationError(ctx, error.message);
+        return new ValidationError(error.message);
     }
     try {
         const movie = await movieController.update(ctx.params.id, strippedBody);
         if (!movie.length) {
-            notFound(ctx, 'movie not found');
+            return new NotFoundError('movie not found');
         } else {
             ctx.body = {data: movie[0]}
         }
     } catch (error) {
         // UNIQUE CONSTRAINT VIOLATION error
         if (error.code == 23505)
-            return validationError(ctx, error.detail)
+            return new ValidationError(error.detail)
         
         throw error;
     }
@@ -84,7 +85,7 @@ router.delete(`${BASEURL}/:id`, async (ctx) => {
     try {
         const movie = await movieController.remove(ctx.params.id)
         if (!movie.length) {
-            notFound(ctx, 'movie not found');
+            return new NotFoundError('movie not found');
         } else {
             ctx.body = {data: movie[0]}
         }
