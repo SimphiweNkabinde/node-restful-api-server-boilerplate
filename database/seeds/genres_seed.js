@@ -9,8 +9,5 @@ exports.seed = async function(knex) {
     { name: 'fantasy'},
     { name: 'horror'},
     { name: 'action'},
-    { name: 'sci-fi'},
-    { name: 'suspense'},
-    { name: 'romance'},
   ]);
 };
