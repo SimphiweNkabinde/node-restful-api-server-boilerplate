@@ -1,5 +1,5 @@
-import chaiHttp from 'chai-http';
-import * as chaiModule from 'chai';
+import chaiHttp from "chai-http";
+import * as chaiModule from 'chai'
 import { expect } from "chai";
 
 const chai = chaiModule.use(chaiHttp);
@@ -7,50 +7,52 @@ const chai = chaiModule.use(chaiHttp);
 import server from '../src/index.js';
 // initialize Knex
 import knexConfig from '../knexfile.js';
-import Knex from 'knex'
-const knex = Knex(knexConfig)
+import Knex from "knex";
+const knex = Knex(knexConfig);
 
-describe('routes: movies', () => {
+describe('routes: genres',  () => {
 
-   beforeEach(() => {
-    return knex.migrate.rollback()
-    .then(() => knex.migrate.latest())
-    .then(() => knex.seed.run())
-   })
+    beforeEach(() => {
+        return knex.migrate.rollback()
+        .then(() => knex.migrate.latest())
+        .then(() => knex.seed.run())
+    })
 
-   afterEach(() => {
-    return knex.migrate.rollback()
-   })
-    describe('GET /api/v1/movies', () => {
-        it('should return all movies', (done) => {
+    afterEach(() => {
+        return knex.migrate.rollback()
+    })
+
+    describe('GET /api/v1/genres', () => {
+        it('should return all genres', (done) => {
             chai.request.execute(server)
-            .get('/api/v1/movies')
+            .get('/api/v1/genres')
             .end((err, res) => {
                 expect(err).to.be.null;
                 expect(res.status).to.equal(200);
                 expect(res.type).to.equal('application/json');
-                expect(res.body.data.length).to.equal(3);
-                expect(res.body.data[0]).to.include.keys('id', 'name', 'genre', 'rating', 'explicit');
+                expect(res.body.data.length).to.equal(10);
+                expect(res.body.data[0]).to.include.keys('id', 'name');
                 done();
             })
         })
     })
 
-    describe('GET /api/v1/movies', () => {
-        it('should return one movie', (done) => {
+    describe('GET /api/v1/genres/:id', () => {
+        it('should return a single genre', (done) => {
             chai.request.execute(server)
-            .get('/api/v1/movies/1')
+            .get('/api/v1/genres/1')
             .end((err, res) => {
                 expect(err).to.be.null;
                 expect(res.status).to.equal(200);
                 expect(res.type).to.equal('application/json');
-                expect(res.body.data).to.include.keys('id', 'name', 'genre', 'rating', 'explicit');
+                expect(res.body.data).to.include.keys('id', 'name');
                 done();
             })
         })
-        it('should return a 404 response if the movie does not exist', (done) => {
+
+        it('should return 404 error if the genre does not exist', (done) => {
             chai.request.execute(server)
-            .get('/api/v1/movies/99999')
+            .get('/api/v1/genres/9999')
             .end((err, res) => {
                 expect(err).to.be.null;
                 expect(res.status).to.equal(404);
@@ -61,29 +63,26 @@ describe('routes: movies', () => {
         })
     })
 
-    describe('POST /api/v1/movies', () => {
-        it('should return the movie that was added', (done) => {
+    describe('POST /api/v1/genres', () => {
+        it('should return the genre that was created', (done) => {
             chai.request.execute(server)
-            .post('/api/v1/movies')
+            .post('/api/v1/genres')
             .send({
-                name: 'Titanic',
-                genre: 'Drama',
-                rating: 8,
-                explicit: true
+                name: 'comedy'
             })
             .end((err, res) => {
                 expect(err).to.be.null;
                 expect(res.status).to.equal(201);
                 expect(res.type).to.equal('application/json');
-                expect(res.body.data).to.include.keys('id', 'name', 'genre', 'rating', 'explicit');
+                expect(res.body.data).to.include.keys('id', 'name');
                 done();
             })
         })
-        it('should return an 400 response if the payload is invalid', (done) => {
+        it('should return 400 error if the payload is invalid', (donr) => {
             chai.request.execute(server)
-            .post('/api/v1/movies')
+            .post('/api/v1/genres')
             .send({
-                name: 'Titanic'
+                type: "new genre"
             })
             .end((err, res) => {
                 expect(err).to.be.null;
@@ -95,29 +94,29 @@ describe('routes: movies', () => {
         })
     })
 
-    describe('PUT /api/v1/movies/:id', () => {
-        it('should return the movie that was updateed', (done) => {
-            knex('movies').select('*')
-            .then(movies => {
-                const movieObject = movies[0]
+    describe('PUT /api/v1/genres/:id', () => {
+        it('should return the genre that was updated', (done) => {
+            knex('genres').select('*')
+            .then(genres => {
+                const genreObject = genres[0]
                 chai.request.execute(server)
-                .put(`/api/v1/movies/${movieObject.id}`)
-                .send({rating: 9})
+                .put(`/api/v1/genres/${genreObject.id}`)
+                .send({name: 'scifi/romance'})
                 .end((err, res) => {
                     expect(err).to.be.null;
                     expect(res.status).to.equal(200);
                     expect(res.type).to.equal('application/json');
-                    expect(res.body.data).to.include.keys('id', 'name', 'genre', 'rating', 'explicit');
-                    const updatedMovieObject = res.body.data;
-                    expect(updatedMovieObject.rating).to.not.equal(movieObject.rating);
+                    expect(res.body.data).to.include.keys('id', 'name');
+                    const updatedGenreObject = res.body.data;
+                    expect(updatedGenreObject.name).to.not.equal(genreObject.name);
                     done();
                 })
             })
         })
-        it('should return a 404 response if the movie does not exist', (done) => {
+        it('should return 404 error if the genre does not exist', (done) => {
             chai.request.execute(server)
-            .put('/api/v1/movies/99999')
-            .send({rating: 9})
+            .put('/api/v1/genres/99999')
+            .send({name: 'scifi/romance'})
             .end((err, res) => {
                 expect(err).to.be.null;
                 expect(res.status).to.equal(404);
@@ -128,34 +127,34 @@ describe('routes: movies', () => {
         })
     })
 
-    describe('DELETE /api/v1/movies:id', () => {
-        it('should return the movie that was deleted', (done) => {
-            knex('movies').select('*')
-            .then(movies => {
-                const movieObject = movies[0];
-                const lengthBeforeDeletion = movies.length;
+    describe('DELETE /api/v1/genres:id', () => {
+        it('should return the genre that was deleted', (done) => {
+            knex('genres').select('*')
+            .then(genres => {
+                const genreObject = genres[0];
+                const lengthBeforeDeletion = genres.length;
                 chai.request.execute(server)
-                .delete(`/api/v1/movies/${movieObject.id}`)
+                .delete(`/api/v1/genres/${genreObject.id}`)
                 .end((err,res) => {
                     expect(err).to.be.null;
                     expect(res.status).to.equal(200);
                     expect(res.type).to.equal('application/json');
                     expect(res.body.data).to.include.keys('id', 'name', 'genre', 'rating', 'explicit');
-                    const deletedMovieObject = res.body.data;
-                    expect(movieObject.id).to.equal(deletedMovieObject.id);
+                    const deletedGenreObject = res.body.data;
+                    expect(genreObject.id).to.equal(deletedGenreObject.id);
 
-                    knex('movies').select('*')
-                    .then(updatedMovies => {
-                        expect(updatedMovies.length).to.equal(lengthBeforeDeletion - 1);
+                    knex('genres').select('*')
+                    .then(updatedGenres => {
+                        expect(updatedGenres.length).to.equal(lengthBeforeDeletion - 1);
                         done();
                     })
 
                 })
             })
         })
-        it('should return a 404 response if the movie does not exist', (done) => {
+        it('should return 404 error if the genre does not exist', (done) => {
             chai.request.execute(server)
-            .delete('/api/v1/movies/99999')
+            .delete('/api/v1/genres/99999')
             .end((err, res) => {
                 expect(err).to.be.null;
                 expect(res.status).to.equal(404);
@@ -165,5 +164,4 @@ describe('routes: movies', () => {
             })
         })
     })
-
-});
+})
