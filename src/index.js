@@ -9,8 +9,9 @@ const { ApplicationError } = require('./utils/errors.js');
 const app = new Koa();
 
 // routes
-const indexRoutes = require('./index/route.js')
-const moviesoutes = require('./movie/routes.js');
+const indexRoutes = require('./index/route.js');
+const movieRoutes = require('./movie/routes.js');
+const genreRoutes = require('./genre/routes.js');
 
 // setup error handling middleware
 app.use(async (ctx, next) => {
@@ -19,7 +20,8 @@ app.use(async (ctx, next) => {
 })
 app.use(bodyParser())
 app.use(indexRoutes.routes());
-app.use(moviesoutes.routes());
+app.use(movieRoutes.routes());
+app.use(genreRoutes.routes());
 
 const server = app.listen(process.env.PORT, () => {
     console.log(`Server listening on port: ${process.env.PORT}`);
