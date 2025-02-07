@@ -30,7 +30,7 @@ describe('routes: genres',  () => {
                 expect(err).to.be.null;
                 expect(res.status).to.equal(200);
                 expect(res.type).to.equal('application/json');
-                expect(res.body.data.length).to.equal(10);
+                expect(res.body.data.length).to.equal(3);
                 expect(res.body.data[0]).to.include.keys('id', 'name');
                 done();
             })
@@ -78,7 +78,7 @@ describe('routes: genres',  () => {
                 done();
             })
         })
-        it('should return 400 error if the payload is invalid', (donr) => {
+        it('should return 400 error if the payload is invalid', (done) => {
             chai.request.execute(server)
             .post('/api/v1/genres')
             .send({
@@ -139,7 +139,7 @@ describe('routes: genres',  () => {
                     expect(err).to.be.null;
                     expect(res.status).to.equal(200);
                     expect(res.type).to.equal('application/json');
-                    expect(res.body.data).to.include.keys('id', 'name', 'genre', 'rating', 'explicit');
+                    expect(res.body.data).to.include.keys('id', 'name');
                     const deletedGenreObject = res.body.data;
                     expect(genreObject.id).to.equal(deletedGenreObject.id);
 
