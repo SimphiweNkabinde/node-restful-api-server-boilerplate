@@ -8,9 +8,9 @@ exports.up = function(knex) {
     return knex.schema.createTable('movies', (table) => {
         table.increments();
         table.string('name').notNullable().unique();
-        table.string('genre').notNullable();
-        table.integer('rating').notNullable();
-        table.boolean('explicit').notNullable();
+        table.string('genre');
+        table.integer('rating');
+        table.boolean('explicit');
         table.timestamps(true, true)
     }); 
 };
