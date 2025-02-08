@@ -17,6 +17,7 @@ function create(movie) {
 function update(id, movie) {
     return knex('movies')
     .update(movie)
+    .update('updated_at', knex.fn.now())
     .where({ id: parseInt(id)})
     .returning('*')
 }

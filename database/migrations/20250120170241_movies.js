@@ -11,6 +11,7 @@ exports.up = function(knex) {
         table.string('genre').notNullable();
         table.integer('rating').notNullable();
         table.boolean('explicit').notNullable();
+        table.timestamps(true, true)
     }); 
 };
 

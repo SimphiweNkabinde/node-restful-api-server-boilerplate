@@ -17,6 +17,7 @@ function create(genre) {
 function update(id, genre) {
     return knex('genres')
     .update(genre)
+    .update('updated_at', knex.fn.now())
     .where({ id: parseInt(id)})
     .returning('*')
 }
