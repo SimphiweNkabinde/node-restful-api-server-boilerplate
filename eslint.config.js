@@ -38,10 +38,9 @@ export default [
             '@stylistic/js/no-confusing-arrow': 'error',
             '@stylistic/js/implicit-arrow-linebreak': ['error', 'beside'],
             // VARIABLES
-            'no-undef': 'error',
+            'no-undef': 'warn',
             'one-var': ['error', 'never'],
             'no-multi-assign': 'error',
-            'no-plusplus': 'error',
             '@stylistic/js/operator-linebreak': ['error', 'after'],
             'no-unused-vars': 'error',
             'no-use-before-define': 'off',

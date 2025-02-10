@@ -1,6 +1,6 @@
 // set environment
-import * as dotenv from 'dotenv'
-dotenv.config({path: `.env.${process.env.NODE_ENV || 'development'}`});
+import * as dotenv from 'dotenv';
+dotenv.config({ path: `.env.${process.env.NODE_ENV || 'development'}` });
 
 // initialize koa
 import Koa from 'koa';
@@ -15,17 +15,17 @@ import movieRoutes from './movie/routes.js';
 import genreRoutes from './genre/routes.js';
 
 // setup error handling middleware
-app.use(async (ctx, next) => {
-    ApplicationError.setContext(ctx)
-    await next()
-})
-app.use(bodyParser())
+app.use(async(ctx, next) => {
+    ApplicationError.setContext(ctx);
+    await next();
+});
+app.use(bodyParser());
 app.use(indexRoutes.routes());
 app.use(movieRoutes.routes());
 app.use(genreRoutes.routes());
 
 const server = app.listen(process.env.PORT, () => {
     console.log(`Server listening on port: ${process.env.PORT}`);
-}); 
+});
 
 export default server;

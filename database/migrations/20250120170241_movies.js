@@ -9,8 +9,8 @@ export const up = function(knex) {
         table.string('genre');
         table.integer('rating');
         table.boolean('explicit');
-        table.timestamps(true, true)
-    }); 
+        table.timestamps(true, true);
+    });
 };
 
 /**
@@ -18,5 +18,5 @@ export const up = function(knex) {
  * @returns { Promise<void> }
  */
 export const down = function(knex) {
-  return knex.schema.dropTable('movies');
+    return knex.schema.dropTable('movies');
 };

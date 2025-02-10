@@ -10,7 +10,7 @@
 //         it('should return json', (done) => {
 //             chai.request.execute(server).keepOpen()
 //             .get('/')
-//             .end((err, res) => {                
+//             .end((err, res) => {
 //                 expect(err).to.be.null;
 //                 expect(res.status).to.equal(200);
 //                 expect(res.type).to.equal('application/json');

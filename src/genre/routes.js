@@ -6,39 +6,37 @@ import { ValidationError, NotFoundError } from '../utils/errors.js';
 
 const BASEURL = '/api/v1/genres';
 
-router.get(BASEURL, async (ctx) => {
+router.get(BASEURL, async(ctx) => {
     try {
         const genres = await genreController.getAll();
-        ctx.body = {
-            data: genres
-        }
+        ctx.body = { data: genres };
     } catch (error) {
         console.log(error);
     }
-})
+});
 
-router.get(`${BASEURL}/:id`, async (ctx) => {
+router.get(`${BASEURL}/:id`, async(ctx) => {
     try {
-        const genre = await genreController.getOne(ctx.params.id)
+        const genre = await genreController.getOne(ctx.params.id);
         if (!genre.length) {
             return new NotFoundError('genre not found');
-        } else {
-            ctx.body = {data: genre[0]}
         }
+        ctx.body = { data: genre[0] };
+
 
     } catch (error) {
         console.log(error);
     }
-})
-router.post(BASEURL, async (ctx) => {
+});
+router.post(BASEURL, async(ctx) => {
     // validation
     let strippedBody;
     try {
-        //strip unknown fields to avoid COLUMN DOES NOT EXIST error from ORM query
+        // strip unknown fields to avoid COLUMN DOES NOT EXIST error from ORM query
         await createGenreSchema.validate(ctx.request.body, { stripUnknown: true })
-        .then(value => strippedBody = value);
+            .then((value) => strippedBody = value);
     } catch (error) {
-        return new ValidationError(error.message)
+        return new ValidationError(error.message);
     }
 
     try {
@@ -47,21 +45,21 @@ router.post(BASEURL, async (ctx) => {
         ctx.body = { data: genre[0] };
     } catch (error) {
         // UNIQUE CONSTRAINT VIOLATION error
-        if (error.code == 23505) {
-            return new ValidationError(error.detail)
+        if (error.code === 23505) {
+            return new ValidationError(error.detail);
         }
-        
+
         throw error;
     }
-})
+});
 
-router.put(`${BASEURL}/:id`, async (ctx) => {
+router.put(`${BASEURL}/:id`, async(ctx) => {
     // validation
     let strippedBody;
     try {
-        //strip unknown fields to avoid COLUMN DOES NOT EXIST error from ORM query
+        // strip unknown fields to avoid COLUMN DOES NOT EXIST error from ORM query
         await updateGenreSchema.validate(ctx.request.body, { stripUnknown: true })
-        .then(value => strippedBody = value);
+            .then((value) => strippedBody = value);
     } catch (error) {
         return new ValidationError(error.message);
     }
@@ -69,29 +67,28 @@ router.put(`${BASEURL}/:id`, async (ctx) => {
         const genre = await genreController.update(ctx.params.id, strippedBody);
         if (!genre.length) {
             return new NotFoundError('genre not found');
-        } else {
-            ctx.body = {data: genre[0]}
         }
+        ctx.body = { data: genre[0] };
+
     } catch (error) {
         // UNIQUE CONSTRAINT VIOLATION error
-        if (error.code == 23505)
-            return new ValidationError(error.detail)
-        
+        if (error.code === 23505) return new ValidationError(error.detail);
+
         throw error;
     }
-})
+});
 
-router.delete(`${BASEURL}/:id`, async (ctx) => {
+router.delete(`${BASEURL}/:id`, async(ctx) => {
     try {
-        const genre = await genreController.remove(ctx.params.id)
+        const genre = await genreController.remove(ctx.params.id);
         if (!genre.length) {
             return new NotFoundError('genre not found');
-        } else {
-            ctx.body = {data: genre[0]}
         }
+        ctx.body = { data: genre[0] };
+
     } catch (error) {
         console.log(error);
     }
-})
+});
 
 export default router;

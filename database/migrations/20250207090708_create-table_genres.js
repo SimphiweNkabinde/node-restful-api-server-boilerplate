@@ -3,11 +3,11 @@
  * @returns { Promise<void> }
  */
 export const up = function(knex) {
-  return knex.schema.createTable('genres', (table) => {
-    table.increments();
-    table.string('name').notNullable().unique();
-    table.timestamps(true, true)
-  })
+    return knex.schema.createTable('genres', (table) => {
+        table.increments();
+        table.string('name').notNullable().unique();
+        table.timestamps(true, true);
+    });
 };
 
 /**
@@ -15,5 +15,5 @@ export const up = function(knex) {
  * @returns { Promise<void> }
  */
 export const down = function(knex) {
-  return knex.schema.dropTable('genres');
+    return knex.schema.dropTable('genres');
 };

@@ -5,27 +5,27 @@ const knex = Knex(knexConfig);
 
 function getAll() {
     return knex('genres')
-    .select('*');
+        .select('*');
 }
 function getOne(id) {
     return knex('genres')
-    .select().where({id: parseInt(id)})
+        .select().where({ id: parseInt(id) });
 }
 function create(genre) {
     return knex('genres')
-    .insert(genre, '*')
+        .insert(genre, '*');
 }
 function update(id, genre) {
     return knex('genres')
-    .update(genre)
-    .update('updated_at', knex.fn.now())
-    .where({ id: parseInt(id)})
-    .returning('*')
+        .update(genre)
+        .update('updated_at', knex.fn.now())
+        .where({ id: parseInt(id) })
+        .returning('*');
 }
 function remove(id) {
     return knex('genres')
-    .del('*')
-    .where({id: parseInt(id)})
+        .del('*')
+        .where({ id: parseInt(id) });
 }
 
 export default {
@@ -33,5 +33,5 @@ export default {
     getOne,
     create,
     update,
-    remove
-}
+    remove,
+};

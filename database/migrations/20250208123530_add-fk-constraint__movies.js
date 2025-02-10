@@ -3,15 +3,15 @@
  * @returns { Promise<void> }
  */
 export const up = function(knex) {
-  return knex.schema.alterTable('movies', (table) => {
-    table.dropColumn('genre');
-    table.integer('genre_id').unsigned();
-    table.foreign('genre_id')
-    .references('id')
-    .inTable('genres')
-    .deferrable('deferred')
-    .onDelete('SET NULL');
-  })
+    return knex.schema.alterTable('movies', (table) => {
+        table.dropColumn('genre');
+        table.integer('genre_id').unsigned();
+        table.foreign('genre_id')
+            .references('id')
+            .inTable('genres')
+            .deferrable('deferred')
+            .onDelete('SET NULL');
+    });
 };
 
 /**
@@ -19,8 +19,8 @@ export const up = function(knex) {
  * @returns { Promise<void> }
  */
 export const down = function(knex) {
-  return knex.schema.alterTable('movies', (table) => {
-    table.dropColumn('genre_id');
-    table.string('genre');
-  })
+    return knex.schema.alterTable('movies', (table) => {
+        table.dropColumn('genre_id');
+        table.string('genre');
+    });
 };
