@@ -15,4 +15,16 @@ describe('utils: casing', () => {
         const resultString = Casing.toSnake(snakeCase);
         expect(resultString).to.equal('hello_world');
     })
+
+    it(`should convert an object's snake_case key names to camelCase names`, () => {
+
+        const snakeCaseObject = {
+            one_two: "one two",
+            three_and_four_and_five: "three four five",
+            this_snake_case_name_is_long: "this snake case name is long"
+        }
+        Casing.toCamelkeys(snakeCaseObject);
+        expect(snakeCaseObject).to.include.keys("oneTwo", "threeAndFourAndFive", "thisSnakeCaseNameIsLong");
+
+    })
 })
