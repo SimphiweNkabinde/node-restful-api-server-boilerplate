@@ -20,10 +20,10 @@ router.get(BASEURL, async (ctx) => {
 router.get(`${BASEURL}/:id`, async (ctx) => {
     try {
         const movie = await movieController.getOne(ctx.params.id)
-        if (!movie.length) {
+        if (movie == null) {
             return new NotFoundError('movie not found');
         } else {
-            ctx.body = {data: movie[0]}
+            ctx.body = {data: movie}
         }
 
     } catch (error) {
@@ -50,6 +50,11 @@ router.post(BASEURL, async (ctx) => {
         if (error.code == 23505) {
             return new ValidationError(error.detail)
         }
+        if (error.code == 23503) {
+            if (error.detail.includes('Key (genre_id)=')) {
+                return new ValidationError('The specified genre does not exist')
+            }
+        }
         
         throw error;
     }
@@ -74,8 +79,14 @@ router.put(`${BASEURL}/:id`, async (ctx) => {
         }
     } catch (error) {
         // UNIQUE CONSTRAINT VIOLATION error
-        if (error.code == 23505)
+        if (error.code == 23505) {
             return new ValidationError(error.detail)
+        }
+        if (error.code == 23503) {
+            if (error.detail.includes('Key (genre_id)=')) {
+                return new ValidationError('The specified genre does not exist')
+            }
+        }
         
         throw error;
     }

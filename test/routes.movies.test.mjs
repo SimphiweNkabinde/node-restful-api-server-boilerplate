@@ -31,12 +31,13 @@ describe('routes: movies', () => {
                 expect(res.type).to.equal('application/json');
                 expect(res.body.data.length).to.equal(3);
                 expect(res.body.data[0]).to.include.keys('id', 'name', 'genre', 'rating', 'explicit');
+                expect(res.body.data[0].genre).to.include.keys('id', 'name');
                 done();
             })
         })
     })
 
-    describe('GET /api/v1/movies', () => {
+    describe('GET /api/v1/movies/:id', () => {
         it('should return one movie', (done) => {
             chai.request.execute(server)
             .get('/api/v1/movies/1')
@@ -45,6 +46,7 @@ describe('routes: movies', () => {
                 expect(res.status).to.equal(200);
                 expect(res.type).to.equal('application/json');
                 expect(res.body.data).to.include.keys('id', 'name', 'genre', 'rating', 'explicit');
+                expect(res.body.data.genre).to.include.keys('id', 'name');
                 done();
             })
         })
@@ -67,7 +69,7 @@ describe('routes: movies', () => {
             .post('/api/v1/movies')
             .send({
                 name: 'Titanic',
-                genre: 'Drama',
+                genre: 1,
                 rating: 8,
                 explicit: true
             })
