@@ -7,7 +7,7 @@ exports.seed = async function(knex) {
   await knex('genres').del()
   await knex('genres').insert([
     { name: 'fantasy'},
-    { name: 'horror'},
+    { name: 'science fiction'},
     { name: 'action'},
   ]);
 };
