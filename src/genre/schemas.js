@@ -1,4 +1,4 @@
-const { object, string } = require('yup');
+import { object, string } from 'yup';
 
 
 const create = object({
@@ -9,7 +9,7 @@ const update = object({
     name: string().trim().min(2).lowercase().required()
 })
 
-module.exports = {
+export {
     create,
     update
 }

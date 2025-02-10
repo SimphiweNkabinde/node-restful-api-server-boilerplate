@@ -1,10 +1,11 @@
-require('dotenv').config({path: `.env.${process.env.NODE_ENV || 'development'}`});
+import * as dotenv from 'dotenv'
+dotenv.config({path: `.env.${process.env.NODE_ENV || 'development'}`});
 // Update with your config settings.
 /**
  * @type { Object.<string, import("knex").Knex.Config> }
  */
-module.exports = {
-    client: process.env.DB_CLIENT,
+const knexConfig = {
+    client: process.env.DB_CLIENT || 'pg',
     connection: {
       host: process.env.DB_HOST,
       port: process.env.DB_PORT,
@@ -19,3 +20,5 @@ module.exports = {
       directory: './database/seeds'
     }
 };
+
+export default knexConfig;

@@ -54,7 +54,7 @@ class UnauthorizedError extends ApplicationError {
     }
 }
 
-module.exports = {
+export {
     ValidationError,
     NotFoundError,
     ForbiddenError,

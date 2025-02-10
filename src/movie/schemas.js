@@ -1,4 +1,4 @@
-const { boolean, number, object, string } = require('yup');
+import { boolean, number, object, string } from 'yup';
 
 
 const create = object({
@@ -15,7 +15,7 @@ const update = object({
     explicit: boolean()
 })
 
-module.exports = {
+export {
     create,
     update
 }

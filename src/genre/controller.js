@@ -1,6 +1,7 @@
 // initialize Knex
-const knexConfig = require('../../knexfile');
-const knex = require('knex')(knexConfig);
+import knexConfig from '../../knexfile.js';
+import Knex from 'knex';
+const knex = Knex(knexConfig);
 
 function getAll() {
     return knex('genres')
@@ -27,7 +28,7 @@ function remove(id) {
     .where({id: parseInt(id)})
 }
 
-module.exports = {
+export default {
     getAll,
     getOne,
     create,

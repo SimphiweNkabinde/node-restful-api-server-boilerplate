@@ -1,4 +1,4 @@
-class Casing {
+export default class Casing {
 
     /**
      * convert to camelCase
@@ -33,5 +33,3 @@ class Casing {
         }
     }
 }
-
-module.exports = Casing

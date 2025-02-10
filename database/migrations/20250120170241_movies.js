@@ -1,10 +1,8 @@
-const { default: knex } = require("knex");
-
 /**
  * @param { import("knex").Knex } knex
  * @returns { Promise<void> }
  */
-exports.up = function(knex) {
+export const up = function(knex) {
     return knex.schema.createTable('movies', (table) => {
         table.increments();
         table.string('name').notNullable().unique();
@@ -19,6 +17,6 @@ exports.up = function(knex) {
  * @param { import("knex").Knex } knex
  * @returns { Promise<void> }
  */
-exports.down = function(knex) {
+export const down = function(knex) {
   return knex.schema.dropTable('movies');
 };

@@ -1,8 +1,8 @@
-const Router = require('koa-router');
+import Router from 'koa-router';
 const router = new Router();
-const movieController = require('./controller.js');
-const { create: createMovieSchema, update: updateMovieSchema } = require('./schemas.js');
-const { ValidationError, NotFoundError } = require('../utils/errors.js');
+import movieController from './controller.js';
+import { create as createMovieSchema, update as updateMovieSchema } from './schemas.js';
+import { ValidationError, NotFoundError } from '../utils/errors.js';
 
 const BASEURL = '/api/v1/movies';
 
@@ -105,4 +105,4 @@ router.delete(`${BASEURL}/:id`, async (ctx) => {
     }
 })
 
-module.exports = router;
+export default router;

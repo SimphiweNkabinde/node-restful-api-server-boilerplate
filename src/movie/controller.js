@@ -1,6 +1,7 @@
 // initialize Knex
-const knexConfig = require('../../knexfile');
-const knex = require('knex')(knexConfig);
+import knexConfig from '../../knexfile.js';
+import Knex from 'knex';
+const knex = Knex(knexConfig);
 
 async function getAll() {
     const movies = await knex
@@ -59,8 +60,9 @@ async function getOne(id) {
 function create(movie) {
     movie.genre_id = movie.genre;
     delete movie.genre
-    return createdMovie = knex('movies')
-    .insert(movie).returning([
+    return knex('movies')
+    .insert(movie)
+    .returning([
         'id', 
         'name', 
         'explicit', 
@@ -105,7 +107,7 @@ function remove(id) {
     ])
 }
 
-module.exports = {
+export default {
     getAll,
     getOne,
     create,

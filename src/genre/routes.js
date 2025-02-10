@@ -1,8 +1,8 @@
-const Router = require('koa-router');
+import Router from 'koa-router';
 const router = new Router();
-const genreController = require('./controller.js');
-const { create: createGenreSchema, update: updateGenreSchema } = require('./schemas.js');
-const { ValidationError, NotFoundError } = require('../utils/errors.js');
+import genreController from './controller.js';
+import { create as createGenreSchema, update as updateGenreSchema } from './schemas.js';
+import { ValidationError, NotFoundError } from '../utils/errors.js';
 
 const BASEURL = '/api/v1/genres';
 
@@ -94,4 +94,4 @@ router.delete(`${BASEURL}/:id`, async (ctx) => {
     }
 })
 
-module.exports = router;
+export default router;
