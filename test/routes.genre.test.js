@@ -85,6 +85,22 @@ describe('routes: genres',  () => {
                     done();
                 });
         });
+        it('should return a 400 error if the genre name already exists', (done) => {
+            knex('genres').select('name')
+                .then((genres) => {
+                    const [genre] = genres;
+                    chai.request.execute(server)
+                        .post('/api/v1/genres')
+                        .send({ name: genre.name })
+                        .end((err, res) => {
+                            expect(err).to.be.null;
+                            expect(res).to.have.status(400);
+                            expect(res.type).to.equal('application/json');
+                            expect(res.body).to.have.key('error');
+                            done();
+                        });
+                });
+        });
     });
 
     describe('PUT /api/v1/genres/:id', () => {
@@ -116,6 +132,22 @@ describe('routes: genres',  () => {
                     expect(res.type).to.equal('application/json');
                     expect(res.body).to.include.keys('error');
                     done();
+                });
+        });
+        it('should return a 400 error if the genre name already exists', (done) => {
+            knex('genres').select('name', 'id')
+                .then((genres) => {
+                    const [genre1, genre2] = genres;
+                    chai.request.execute(server)
+                        .put(`/api/v1/genres/${genre2.id}`)
+                        .send({ name: genre1.name })
+                        .end((err, res) => {
+                            expect(err).to.be.null;
+                            expect(res).to.have.status(400);
+                            expect(res.type).to.equal('application/json');
+                            expect(res.body).to.have.key('error');
+                            done();
+                        });
                 });
         });
     });

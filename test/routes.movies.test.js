@@ -90,10 +90,33 @@ describe('routes: movies', () => {
                     done();
                 });
         });
+        it('should return a 400 error if the movie name already exists', (done) => {
+            knex('movies').select('name')
+                .then((movies) => {
+                    const [movie] = movies;
+                    chai.request.execute(server)
+                        .post('/api/v1/movies')
+                        .send({
+                            name: movie.name,
+                            explicit: false,
+                            genre: 1,
+                            rating: 4,
+                        })
+                        .end((err, res) => {
+                            expect(err).to.be.null;
+                            expect(res).to.have.status(400);
+                            expect(res.type).to.equal('application/json');
+                            expect(res.body).to.have.key('error');
+                            expect(res.body.error).to.have.status(400);
+                            expect(res.body.error).to.have.name('ValidationError');
+                            done();
+                        });
+                });
+        });
     });
 
     describe('PUT /api/v1/movies/:id', () => {
-        it('should return the movie that was updateed', (done) => {
+        it('should return the movie that was updated', (done) => {
             knex('movies').select('*')
                 .then((movies) => {
                     const [movieObject] = movies;
@@ -121,6 +144,22 @@ describe('routes: movies', () => {
                     expect(res.type).to.equal('application/json');
                     expect(res.body).to.include.keys('error');
                     done();
+                });
+        });
+        it('should return a 400 error if the movie name already exists', (done) => {
+            knex('movies').select('name', 'id')
+                .then((movies) => {
+                    const [movie1, movie2] = movies;
+                    chai.request.execute(server)
+                        .put(`/api/v1/movies/${movie2.id}`)
+                        .send({ name: movie1.name })
+                        .end((err, res) => {
+                            expect(err).to.be.null;
+                            expect(res).to.have.status(400);
+                            expect(res.type).to.equal('application/json');
+                            expect(res.body).to.have.key('error');
+                            done();
+                        });
                 });
         });
     });
