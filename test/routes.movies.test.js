@@ -108,7 +108,7 @@ describe('routes: movies', () => {
                             expect(res.type).to.equal('application/json');
                             expect(res.body).to.have.key('error');
                             expect(res.body.error).to.have.status(400);
-                            expect(res.body.error).to.have.name('ValidationError');
+                            expect(res.body.error.name).to.equal('ValidationError');
                             done();
                         });
                 });

@@ -44,11 +44,12 @@ router.post(BASEURL, async(ctx) => {
         ctx.status = 201;
         ctx.body = { data: movie[0] };
     } catch (error) {
-        // UNIQUE CONSTRAINT VIOLATION error
-        if (error.code === 23505) {
+        // UNIQUE CONSTRAINT VIOLATION ERROR
+        if (error.code === '23505') {
             return new ValidationError(error.detail);
         }
-        if (error.code === 23503) {
+        // FOREIGN KEY VIOLATION ERROR
+        if (error.code === '23503') {
             if (error.detail.includes('Key (genre_id)=')) {
                 return new ValidationError('The specified genre does not exist');
             }
@@ -77,10 +78,11 @@ router.put(`${BASEURL}/:id`, async(ctx) => {
 
     } catch (error) {
         // UNIQUE CONSTRAINT VIOLATION error
-        if (error.code === 23505) {
+        if (error.code === '23505') {
             return new ValidationError(error.detail);
         }
-        if (error.code === 23503) {
+        // FOREIGN KEY VIOLATION ERROR
+        if (error.code === '23503') {
             if (error.detail.includes('Key (genre_id)=')) {
                 return new ValidationError('The specified genre does not exist');
             }

@@ -45,7 +45,7 @@ router.post(BASEURL, async(ctx) => {
         ctx.body = { data: genre[0] };
     } catch (error) {
         // UNIQUE CONSTRAINT VIOLATION error
-        if (error.code === 23505) {
+        if (error.code === '23505') {
             return new ValidationError(error.detail);
         }
 
@@ -72,7 +72,7 @@ router.put(`${BASEURL}/:id`, async(ctx) => {
 
     } catch (error) {
         // UNIQUE CONSTRAINT VIOLATION error
-        if (error.code === 23505) return new ValidationError(error.detail);
+        if (error.code === '23505') return new ValidationError(error.detail);
 
         throw error;
     }
