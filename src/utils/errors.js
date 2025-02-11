@@ -24,6 +24,7 @@ class ApplicationError extends Error {
             error: {
                 name: this.name,
                 message,
+                status: this.status,
                 stack: process.env.NODE_ENV !== 'production' ? this.stack : undefined,
             },
         };
