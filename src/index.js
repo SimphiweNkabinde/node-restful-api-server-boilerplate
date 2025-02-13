@@ -24,8 +24,8 @@ app.use(indexRoutes.routes());
 app.use(movieRoutes.routes());
 app.use(genreRoutes.routes());
 
-const server = app.listen(process.env.PORT, () => {
+app.listen(process.env.PORT, () => {
     console.log(`Server listening on port: ${process.env.PORT}`);
 });
 
-export default server;
+export default app;

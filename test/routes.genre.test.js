@@ -1,17 +1,16 @@
-import chaiHttp from 'chai-http';
-import * as chaiModule from 'chai';
-import { expect } from 'chai';
-
-const chai = chaiModule.use(chaiHttp);
-
-import server from '../src/index.js';
-// initialize Knex
-import knexConfig from '../knexfile.js';
+import chaiHttp, { request } from 'chai-http';
+import { expect, use } from 'chai';
+import { after, afterEach, beforeEach, describe, it } from 'mocha';
 import Knex from 'knex';
-import { afterEach, beforeEach, describe, it } from 'mocha';
-const knex = Knex(knexConfig);
+import knexConfig from '../knexfile.js';
+import app from '../src/index.js';
 
-describe('routes: genres',  () => {
+use(chaiHttp);
+const knex = Knex(knexConfig);
+const server = app.listen();
+const requester = await request.execute(server).keepOpen();
+
+describe('routes: genres', () => {
 
     beforeEach(() => knex.migrate.rollback()
         .then(() => knex.migrate.latest())
@@ -19,9 +18,13 @@ describe('routes: genres',  () => {
 
     afterEach(() => knex.migrate.rollback());
 
+    after(() => {
+        requester.close();
+    });
+
     describe('GET /api/v1/genres', () => {
         it('should return all genres', (done) => {
-            chai.request.execute(server)
+            requester
                 .get('/api/v1/genres')
                 .end((err, res) => {
                     expect(err).to.be.null;
@@ -36,7 +39,7 @@ describe('routes: genres',  () => {
 
     describe('GET /api/v1/genres/:id', () => {
         it('should return a single genre', (done) => {
-            chai.request.execute(server)
+            requester
                 .get('/api/v1/genres/1')
                 .end((err, res) => {
                     expect(err).to.be.null;
@@ -48,7 +51,7 @@ describe('routes: genres',  () => {
         });
 
         it('should return 404 error if the genre does not exist', (done) => {
-            chai.request.execute(server)
+            requester
                 .get('/api/v1/genres/9999')
                 .end((err, res) => {
                     expect(err).to.be.null;
@@ -62,7 +65,7 @@ describe('routes: genres',  () => {
 
     describe('POST /api/v1/genres', () => {
         it('should return the genre that was created', (done) => {
-            chai.request.execute(server)
+            requester
                 .post('/api/v1/genres')
                 .send({ name: 'comedy' })
                 .end((err, res) => {
@@ -74,7 +77,7 @@ describe('routes: genres',  () => {
                 });
         });
         it('should return 400 error if the payload is invalid', (done) => {
-            chai.request.execute(server)
+            requester
                 .post('/api/v1/genres')
                 .send({ type: 'new genre' })
                 .end((err, res) => {
@@ -89,7 +92,7 @@ describe('routes: genres',  () => {
             knex('genres').select('name')
                 .then((genres) => {
                     const [genre] = genres;
-                    chai.request.execute(server)
+                    requester
                         .post('/api/v1/genres')
                         .send({ name: genre.name })
                         .end((err, res) => {
@@ -108,7 +111,7 @@ describe('routes: genres',  () => {
             knex('genres').select('*')
                 .then((genres) => {
                     const [genreObject] = genres;
-                    chai.request.execute(server)
+                    requester
                         .put(`/api/v1/genres/${genreObject.id}`)
                         .send({ name: 'scifi/romance' })
                         .end((err, res) => {
@@ -123,7 +126,7 @@ describe('routes: genres',  () => {
                 });
         });
         it('should return 404 error if the genre does not exist', (done) => {
-            chai.request.execute(server)
+            requester
                 .put('/api/v1/genres/99999')
                 .send({ name: 'scifi/romance' })
                 .end((err, res) => {
@@ -138,7 +141,7 @@ describe('routes: genres',  () => {
             knex('genres').select('name', 'id')
                 .then((genres) => {
                     const [genre1, genre2] = genres;
-                    chai.request.execute(server)
+                    requester
                         .put(`/api/v1/genres/${genre2.id}`)
                         .send({ name: genre1.name })
                         .end((err, res) => {
@@ -158,7 +161,7 @@ describe('routes: genres',  () => {
                 .then((genres) => {
                     const [genreObject] = genres;
                     const lengthBeforeDeletion = genres.length;
-                    chai.request.execute(server)
+                    requester
                         .delete(`/api/v1/genres/${genreObject.id}`)
                         .end((err, res) => {
                             expect(err).to.be.null;
@@ -178,7 +181,7 @@ describe('routes: genres',  () => {
                 });
         });
         it('should return 404 error if the genre does not exist', (done) => {
-            chai.request.execute(server)
+            requester
                 .delete('/api/v1/genres/99999')
                 .end((err, res) => {
                     expect(err).to.be.null;

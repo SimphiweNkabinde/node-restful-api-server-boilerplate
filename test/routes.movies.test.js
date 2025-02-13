@@ -1,15 +1,14 @@
-import chaiHttp from 'chai-http';
-import * as chaiModule from 'chai';
-import { expect } from 'chai';
-
-const chai = chaiModule.use(chaiHttp);
-
-import server from '../src/index.js';
-// initialize Knex
+import chaiHttp, { request } from 'chai-http';
+import { expect, use } from 'chai';
+import app from '../src/index.js';
 import knexConfig from '../knexfile.js';
 import Knex from 'knex';
-import { afterEach, beforeEach, describe, it } from 'mocha';
+import { after, afterEach, beforeEach, describe, it } from 'mocha';
+
+use(chaiHttp);
 const knex = Knex(knexConfig);
+const server = app.listen();
+const requester = await request.execute(server).keepOpen();
 
 describe('routes: movies', () => {
 
@@ -18,9 +17,14 @@ describe('routes: movies', () => {
         .then(() => knex.seed.run()));
 
     afterEach(() => knex.migrate.rollback());
+
+    after(() => {
+        requester.close();
+    });
+
     describe('GET /api/v1/movies', () => {
         it('should return all movies', (done) => {
-            chai.request.execute(server)
+            requester
                 .get('/api/v1/movies')
                 .end((err, res) => {
                     expect(err).to.be.null;
@@ -36,7 +40,7 @@ describe('routes: movies', () => {
 
     describe('GET /api/v1/movies/:id', () => {
         it('should return one movie', (done) => {
-            chai.request.execute(server)
+            requester
                 .get('/api/v1/movies/1')
                 .end((err, res) => {
                     expect(err).to.be.null;
@@ -48,7 +52,7 @@ describe('routes: movies', () => {
                 });
         });
         it('should return a 404 response if the movie does not exist', (done) => {
-            chai.request.execute(server)
+            requester
                 .get('/api/v1/movies/99999')
                 .end((err, res) => {
                     expect(err).to.be.null;
@@ -62,7 +66,7 @@ describe('routes: movies', () => {
 
     describe('POST /api/v1/movies', () => {
         it('should return the movie that was added', (done) => {
-            chai.request.execute(server)
+            requester
                 .post('/api/v1/movies')
                 .send({
                     name: 'Titanic',
@@ -79,7 +83,7 @@ describe('routes: movies', () => {
                 });
         });
         it('should return an 400 response if the payload is invalid', (done) => {
-            chai.request.execute(server)
+            requester
                 .post('/api/v1/movies')
                 .send({ name: 'Titanic' })
                 .end((err, res) => {
@@ -94,7 +98,7 @@ describe('routes: movies', () => {
             knex('movies').select('name')
                 .then((movies) => {
                     const [movie] = movies;
-                    chai.request.execute(server)
+                    requester
                         .post('/api/v1/movies')
                         .send({
                             name: movie.name,
@@ -120,7 +124,7 @@ describe('routes: movies', () => {
             knex('movies').select('*')
                 .then((movies) => {
                     const [movieObject] = movies;
-                    chai.request.execute(server)
+                    requester
                         .put(`/api/v1/movies/${movieObject.id}`)
                         .send({ rating: 9 })
                         .end((err, res) => {
@@ -135,7 +139,7 @@ describe('routes: movies', () => {
                 });
         });
         it('should return a 404 response if the movie does not exist', (done) => {
-            chai.request.execute(server)
+            requester
                 .put('/api/v1/movies/99999')
                 .send({ rating: 9 })
                 .end((err, res) => {
@@ -150,7 +154,7 @@ describe('routes: movies', () => {
             knex('movies').select('name', 'id')
                 .then((movies) => {
                     const [movie1, movie2] = movies;
-                    chai.request.execute(server)
+                    requester
                         .put(`/api/v1/movies/${movie2.id}`)
                         .send({ name: movie1.name })
                         .end((err, res) => {
@@ -170,7 +174,7 @@ describe('routes: movies', () => {
                 .then((movies) => {
                     const [movieObject] = movies;
                     const lengthBeforeDeletion = movies.length;
-                    chai.request.execute(server)
+                    requester
                         .delete(`/api/v1/movies/${movieObject.id}`)
                         .end((err, res) => {
                             expect(err).to.be.null;
@@ -190,7 +194,7 @@ describe('routes: movies', () => {
                 });
         });
         it('should return a 404 response if the movie does not exist', (done) => {
-            chai.request.execute(server)
+            requester
                 .delete('/api/v1/movies/99999')
                 .end((err, res) => {
                     expect(err).to.be.null;
