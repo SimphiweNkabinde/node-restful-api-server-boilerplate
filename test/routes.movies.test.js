@@ -1,9 +1,10 @@
 import chaiHttp, { request } from 'chai-http';
-import { expect, use } from 'chai';
+import { should as chaiShould, use } from 'chai';
 import app from '../src/index.js';
 import knexConfig from '../knexfile.js';
 import Knex from 'knex';
 import { after, afterEach, beforeEach, describe, it } from 'mocha';
+const should = chaiShould();
 
 use(chaiHttp);
 const knex = Knex(knexConfig);
@@ -24,77 +25,132 @@ describe('routes: movies', () => {
 
     describe('GET /api/v1/movies', () => {
         it('should return all movies', (done) => {
-            requester
-                .get('/api/v1/movies')
-                .end((err, res) => {
-                    expect(err).to.be.null;
-                    expect(res.status).to.equal(200);
-                    expect(res.type).to.equal('application/json');
-                    expect(res.body.data.length).to.equal(3);
-                    expect(res.body.data[0]).to.include.keys('id', 'name', 'genre', 'rating', 'explicit');
-                    expect(res.body.data[0].genre).to.include.keys('id', 'name');
-                    done();
+            knex('movies').select()
+                .then((movies) => {
+                    requester
+                        .get('/api/v1/movies')
+                        .end((err, res) => {
+                            should.not.exist(err);
+                            should.exist(res);
+                            res.should.have.status(200);
+                            res.type.should.be.equal('application/json');
+                            res.body.should.have.property('data');
+                            res.body.data.should.be.an('array');
+                            res.body.data.should.have.lengthOf(movies.length);
+                            res.body.data.forEach((movie) => movie.should.have.all.keys('id', 'name', 'genre', 'rating', 'explicit', 'createdAt', 'updatedAt'));
+                            res.body.data.forEach((movie) => movie.genre.should.have.all.keys('id', 'name'));
+                            done();
+                        });
                 });
         });
     });
 
     describe('GET /api/v1/movies/:id', () => {
-        it('should return one movie', (done) => {
-            requester
-                .get('/api/v1/movies/1')
-                .end((err, res) => {
-                    expect(err).to.be.null;
-                    expect(res.status).to.equal(200);
-                    expect(res.type).to.equal('application/json');
-                    expect(res.body.data).to.include.keys('id', 'name', 'genre', 'rating', 'explicit');
-                    expect(res.body.data.genre).to.include.keys('id', 'name');
-                    done();
+        it('should return a single movie', (done) => {
+            knex('movies').select()
+                .then((movie) => {
+                    requester
+                        .get(`/api/v1/movies/${movie[0].id}`)
+                        .end((err, res) => {
+                            should.not.exist(err);
+                            res.should.have.status(200);
+                            res.type.should.be.equal('application/json');
+                            res.body.should.have.property('data');
+                            res.body.data.should.be.an('object');
+                            res.body.data.should.have.all.keys('id', 'name', 'genre', 'rating', 'explicit', 'createdAt', 'updatedAt');
+                            res.body.data.genre.should.have.all.keys('id', 'name');
+                            done();
+                        });
                 });
+            ;
         });
-        it('should return a 404 response if the movie does not exist', (done) => {
+        it('should return 404 error if the movie does not exist', (done) => {
             requester
                 .get('/api/v1/movies/99999')
                 .end((err, res) => {
-                    expect(err).to.be.null;
-                    expect(res.status).to.equal(404);
-                    expect(res.type).to.equal('application/json');
-                    expect(res.body).to.include.keys('error');
+                    should.not.exist(err);
+                    res.should.have.status(404);
+                    res.type.should.be.equal('application/json');
+                    res.body.should.have.property('error');
+                    res.body.error.should.be.an('object');
+                    res.body.error.should.have.all.keys('name', 'message', 'status', 'stack');
+                    res.body.error.should.have.status(404);
+                    res.body.error.name.should.equal('NotFoundError');
                     done();
                 });
         });
     });
 
     describe('POST /api/v1/movies', () => {
-        it('should return the movie that was added', (done) => {
+        it('should return the movie that was created', (done) => {
+            const payload = {
+                name: 'Titanic',
+                genre: 1,
+                rating: 8,
+                explicit: true,
+            };
             requester
                 .post('/api/v1/movies')
-                .send({
-                    name: 'Titanic',
-                    genre: 1,
-                    rating: 8,
-                    explicit: true,
-                })
+                .send(payload)
                 .end((err, res) => {
-                    expect(err).to.be.null;
-                    expect(res.status).to.equal(201);
-                    expect(res.type).to.equal('application/json');
-                    expect(res.body.data).to.include.keys('id', 'name', 'genre', 'rating', 'explicit');
+                    should.not.exist(err);
+                    res.should.have.status(201);
+                    res.type.should.be.equal('application/json');
+                    res.body.should.have.property('data');
+                    res.body.data.should.be.an('object');
+                    res.body.data.should.have.all.keys('id', 'name', 'genre', 'rating', 'explicit', 'createdAt', 'updatedAt');
+                    res.body.data.name.should.equal(payload.name);
+                    res.body.data.genre.should.equal(payload.genre);
+                    res.body.data.rating.should.equal(payload.rating);
+                    res.body.data.explicit.should.equal(payload.explicit);
                     done();
                 });
         });
-        it('should return an 400 response if the payload is invalid', (done) => {
+        it('should return 400 error if the payload is malformed', (done) => {
             requester
                 .post('/api/v1/movies')
-                .send({ name: 'Titanic' })
+                .send({ name: 'Test movie name' })
                 .end((err, res) => {
-                    expect(err).to.be.null;
-                    expect(res.status).to.equal(400);
-                    expect(res.type).to.equal('application/json');
-                    expect(res.body).to.include.keys('error');
-                    done();
+                    should.not.exist(err);
+                    res.should.have.status(400);
+                    res.type.should.be.equal('application/json');
+                    res.body.should.have.property('error');
+                    res.body.error.should.be.an('object');
+                    res.body.error.should.have.all.keys('name', 'message', 'status', 'stack');
+                    res.body.error.should.have.status(400);
+                    res.body.error.name.should.equal('ValidationError');
+
+                    requester
+                        .post('/api/v1/movies')
+                        .send({ name: 'Test movie name', explicit: false, rating: 3, genre: 999 })
+                        .end((err, res) => {
+                            should.not.exist(err);
+                            res.should.have.status(400);
+                            res.type.should.be.equal('application/json');
+                            res.body.should.have.property('error');
+                            res.body.error.should.be.an('object');
+                            res.body.error.should.have.all.keys('name', 'message', 'status', 'stack');
+                            res.body.error.should.have.status(400);
+                            res.body.error.name.should.equal('ValidationError');
+
+                            requester
+                                .post('/api/v1/movies')
+                                .send({ name: 'Test movie name', explicit: false, rating: -5, genre: 1 })
+                                .end((err, res) => {
+                                    should.not.exist(err);
+                                    res.should.have.status(400);
+                                    res.type.should.be.equal('application/json');
+                                    res.body.should.have.property('error');
+                                    res.body.error.should.be.an('object');
+                                    res.body.error.should.have.all.keys('name', 'message', 'status', 'stack');
+                                    res.body.error.should.have.status(400);
+                                    res.body.error.name.should.equal('ValidationError');
+                                    done();
+                                });
+                        });
                 });
         });
-        it('should return a 400 error if the movie name already exists', (done) => {
+        it('should return 400 error if the movie name already exists', (done) => {
             knex('movies').select('name')
                 .then((movies) => {
                     const [movie] = movies;
@@ -107,12 +163,14 @@ describe('routes: movies', () => {
                             rating: 4,
                         })
                         .end((err, res) => {
-                            expect(err).to.be.null;
-                            expect(res).to.have.status(400);
-                            expect(res.type).to.equal('application/json');
-                            expect(res.body).to.have.key('error');
-                            expect(res.body.error).to.have.status(400);
-                            expect(res.body.error.name).to.equal('ValidationError');
+                            should.not.exist(err);
+                            res.should.have.status(400);
+                            res.type.should.be.equal('application/json');
+                            res.body.should.have.property('error');
+                            res.body.error.should.be.an('object');
+                            res.body.error.should.have.all.keys('name', 'message', 'status', 'stack');
+                            res.body.error.should.have.status(400);
+                            res.body.error.name.should.equal('ValidationError');
                             done();
                         });
                 });
@@ -123,34 +181,42 @@ describe('routes: movies', () => {
         it('should return the movie that was updated', (done) => {
             knex('movies').select('*')
                 .then((movies) => {
-                    const [movieObject] = movies;
+                    const [movie1] = movies;
+                    const payload = { rating: 9, name: 'test update movie name' };
                     requester
-                        .put(`/api/v1/movies/${movieObject.id}`)
-                        .send({ rating: 9 })
+                        .put(`/api/v1/movies/${movie1.id}`)
+                        .send(payload)
                         .end((err, res) => {
-                            expect(err).to.be.null;
-                            expect(res.status).to.equal(200);
-                            expect(res.type).to.equal('application/json');
-                            expect(res.body.data).to.include.keys('id', 'name', 'genre', 'rating', 'explicit');
-                            const updatedMovieObject = res.body.data;
-                            expect(updatedMovieObject.rating).to.not.equal(movieObject.rating);
+                            should.not.exist(err);
+                            res.should.have.status(200);
+                            res.type.should.be.equal('application/json');
+                            res.body.should.have.property('data');
+                            res.body.data.should.be.an('object');
+                            res.body.data.should.have.all.keys('id', 'name', 'genre', 'rating', 'explicit', 'createdAt', 'updatedAt');
+                            res.body.data.id.should.equal(movie1.id);
+                            const keysUpdated = Object.keys(payload);
+                            keysUpdated.forEach((key) => res.body.data[key].should.equal(payload[key]));
                             done();
                         });
                 });
         });
-        it('should return a 404 response if the movie does not exist', (done) => {
+        it('should return 404 error if the movie does not exist', (done) => {
             requester
                 .put('/api/v1/movies/99999')
                 .send({ rating: 9 })
                 .end((err, res) => {
-                    expect(err).to.be.null;
-                    expect(res.status).to.equal(404);
-                    expect(res.type).to.equal('application/json');
-                    expect(res.body).to.include.keys('error');
+                    should.not.exist(err);
+                    res.should.have.status(404);
+                    res.type.should.be.equal('application/json');
+                    res.body.should.have.property('error');
+                    res.body.error.should.be.an('object');
+                    res.body.error.should.have.all.keys('name', 'message', 'status', 'stack');
+                    res.body.error.should.have.status(404);
+                    res.body.error.name.should.equal('NotFoundError');
                     done();
                 });
         });
-        it('should return a 400 error if the movie name already exists', (done) => {
+        it('should return 400 error if the movie name already exists', (done) => {
             knex('movies').select('name', 'id')
                 .then((movies) => {
                     const [movie1, movie2] = movies;
@@ -158,49 +224,56 @@ describe('routes: movies', () => {
                         .put(`/api/v1/movies/${movie2.id}`)
                         .send({ name: movie1.name })
                         .end((err, res) => {
-                            expect(err).to.be.null;
-                            expect(res).to.have.status(400);
-                            expect(res.type).to.equal('application/json');
-                            expect(res.body).to.have.key('error');
+                            should.not.exist(err);
+                            res.should.have.status(400);
+                            res.type.should.be.equal('application/json');
+                            res.body.should.have.property('error');
+                            res.body.error.should.be.an('object');
+                            res.body.error.should.have.all.keys('name', 'message', 'status', 'stack');
+                            res.body.error.should.have.status(400);
+                            res.body.error.name.should.equal('ValidationError');
                             done();
                         });
                 });
         });
     });
 
-    describe('DELETE /api/v1/movies:id', () => {
+    describe('DELETE /api/v1/movies/:id', () => {
         it('should return the movie that was deleted', (done) => {
             knex('movies').select('*')
                 .then((movies) => {
-                    const [movieObject] = movies;
-                    const lengthBeforeDeletion = movies.length;
+                    const [movie1] = movies;
                     requester
-                        .delete(`/api/v1/movies/${movieObject.id}`)
+                        .delete(`/api/v1/movies/${movie1.id}`)
                         .end((err, res) => {
-                            expect(err).to.be.null;
-                            expect(res.status).to.equal(200);
-                            expect(res.type).to.equal('application/json');
-                            expect(res.body.data).to.include.keys('id', 'name', 'genre', 'rating', 'explicit');
-                            const deletedMovieObject = res.body.data;
-                            expect(movieObject.id).to.equal(deletedMovieObject.id);
-
-                            knex('movies').select('*')
-                                .then((updatedMovies) => {
-                                    expect(updatedMovies.length).to.equal(lengthBeforeDeletion - 1);
+                            should.not.exist(err);
+                            res.should.have.status(200);
+                            res.type.should.be.equal('application/json');
+                            res.body.should.have.property('data');
+                            res.body.data.should.be.an('object');
+                            res.body.data.should.have.all.keys('id', 'name', 'genre', 'rating', 'explicit', 'createdAt', 'updatedAt');
+                            res.body.data.id.should.equal(movie1.id);
+                            knex('movies')
+                                .select()
+                                .then((moviesAfterDelete) => {
+                                    moviesAfterDelete.should.have.lengthOf(movies.length - 1);
                                     done();
                                 });
-
                         });
                 });
         });
-        it('should return a 404 response if the movie does not exist', (done) => {
+        it('should return 404 error if the movie does not exist', (done) => {
             requester
                 .delete('/api/v1/movies/99999')
                 .end((err, res) => {
-                    expect(err).to.be.null;
-                    expect(res.status).to.equal(404);
-                    expect(res.type).to.equal('application/json');
-                    expect(res.body).to.include.keys('error');
+                    should.not.exist(err);
+                    res.should.have.status(404);
+                    res.type.should.be.equal('application/json');
+                    res.body.should.have.property('error');
+                    res.body.error.should.be.an('object');
+                    res.body.error.should.have.all.keys('name', 'message', 'status', 'stack');
+                    res.body.error.should.have.status(404);
+                    res.body.error.name.should.equal('NotFoundError');
                     done();
                 });
         });

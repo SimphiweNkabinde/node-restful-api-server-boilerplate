@@ -40,9 +40,9 @@ router.post(BASEURL, async(ctx) => {
     }
 
     try {
-        const movie = await movieController.create(strippedBody);
+        const [movie] = await movieController.create(strippedBody);
         ctx.status = 201;
-        ctx.body = { data: movie[0] };
+        ctx.body = { data: movie };
     } catch (error) {
         // UNIQUE CONSTRAINT VIOLATION ERROR
         if (error.code === '23505') {

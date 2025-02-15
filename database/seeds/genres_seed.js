@@ -9,5 +9,6 @@ export const seed = async function(knex) {
         { name: 'fantasy' },
         { name: 'science fiction' },
         { name: 'action' },
+        { name: 'comedy' },
     ]);
 };
