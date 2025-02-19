@@ -12,28 +12,33 @@ class ApplicationError extends Error {
      *
      * @param {number} status status code
      * @param {string} message the error message
+     * @param {object} details error details
      */
-    constructor(status, message) {
+    constructor(status = 500, message = 'Internal Server Error', details = {}) {
         super(message);
         this.status = status;
         this.name = this.constructor.name;
+        this.details = details;
         Error.captureStackTrace(this, this.constructor);
 
         ApplicationError.ctx.status = this.status;
-        ApplicationError.ctx.body = {
+        const body = {
             error: {
                 name: this.name,
                 message,
                 status: this.status,
                 stack: process.env.NODE_ENV !== 'production' ? this.stack : undefined,
+                details: this.details,
             },
         };
+        if (this.details) body.error.details = this.details;
+        ApplicationError.ctx.body = body;
     }
 }
 
 class ValidationError extends ApplicationError {
-    constructor(message = 'Invalid request') {
-        super(400, message);
+    constructor(message = 'Invalid request', errors = []) {
+        super(400, message, errors.length ? { errors } : {});
     }
 }
 

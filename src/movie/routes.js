@@ -33,10 +33,13 @@ router.post(BASEURL, async(ctx) => {
     let strippedBody;
     try {
         // strip unknown fields to avoid COLUMN DOES NOT EXIST error from ORM query
-        await createMovieSchema.validate(ctx.request.body, { stripUnknown: true })
+        await createMovieSchema.validate(ctx.request.body, { stripUnknown: true, abortEarly: false })
             .then((value) => strippedBody = value);
     } catch (error) {
-        return new ValidationError(error.message);
+        return new ValidationError(
+            error.message,
+            error.inner.map(({ path, message }) => ({ path, message })),
+        );
     }
 
     try {
@@ -46,12 +49,16 @@ router.post(BASEURL, async(ctx) => {
     } catch (error) {
         // UNIQUE CONSTRAINT VIOLATION ERROR
         if (error.code === '23505') {
-            return new ValidationError(error.detail);
+            const [field, value] = [...error.detail.matchAll(/\((\w+)\)/g)].map((match) => match[1]);
+            const detail = `${field} '${value}' already exists`;
+            return new ValidationError(detail, [{ path: field, detail }]);
         }
         // FOREIGN KEY VIOLATION ERROR
         if (error.code === '23503') {
-            if (error.detail.includes('Key (genre_id)=')) {
-                return new ValidationError('The specified genre does not exist');
+            const [field] = [...error.detail.matchAll(/\((\w+)\)/g)].map((match) => match[1]);
+            if (field === 'genre_id') {
+                const message = 'The specified genre does not exist';
+                return new ValidationError(message, [{ path: 'genre', message }]);
             }
         }
 
@@ -67,7 +74,10 @@ router.put(`${BASEURL}/:id`, async(ctx) => {
         await updateMovieSchema.validate(ctx.request.body, { stripUnknown: true })
             .then((value) => strippedBody = value);
     } catch (error) {
-        return new ValidationError(error.message);
+        return new ValidationError(
+            error.message,
+            error.inner.map(({ path, message }) => ({ path, message })),
+        );
     }
     try {
         const movie = await movieController.update(ctx.params.id, strippedBody);
@@ -79,12 +89,16 @@ router.put(`${BASEURL}/:id`, async(ctx) => {
     } catch (error) {
         // UNIQUE CONSTRAINT VIOLATION error
         if (error.code === '23505') {
-            return new ValidationError(error.detail);
+            const [field, value] = [...error.detail.matchAll(/\((\w+)\)/g)].map((match) => match[1]);
+            const detail = `${field} '${value}' already exists`;
+            return new ValidationError(detail, [{ path: field, detail }]);
         }
         // FOREIGN KEY VIOLATION ERROR
         if (error.code === '23503') {
-            if (error.detail.includes('Key (genre_id)=')) {
-                return new ValidationError('The specified genre does not exist');
+            const [field] = [...error.detail.matchAll(/\((\w+)\)/g)].map((match) => match[1]);
+            if (field === 'genre_id') {
+                const message = 'The specified genre does not exist';
+                return new ValidationError(message, [{ path: 'genre', message }]);
             }
         }
 

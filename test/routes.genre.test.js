@@ -69,7 +69,7 @@ describe('routes: genres', () => {
                     res.type.should.be.equal('application/json');
                     res.body.should.have.property('error');
                     res.body.error.should.be.an('object');
-                    res.body.error.should.have.all.keys('name', 'message', 'status', 'stack');
+                    res.body.error.should.have.all.keys('name', 'message', 'status', 'stack', 'details');
                     res.body.error.should.have.status(404);
                     res.body.error.name.should.equal('NotFoundError');
                     done();
@@ -104,7 +104,7 @@ describe('routes: genres', () => {
                     res.type.should.be.equal('application/json');
                     res.body.should.have.property('error');
                     res.body.error.should.be.an('object');
-                    res.body.error.should.have.all.keys('name', 'message', 'status', 'stack');
+                    res.body.error.should.have.all.keys('name', 'message', 'status', 'stack', 'details');
                     res.body.error.should.have.status(400);
                     res.body.error.name.should.equal('ValidationError');
 
@@ -117,7 +117,7 @@ describe('routes: genres', () => {
                             res.type.should.be.equal('application/json');
                             res.body.should.have.property('error');
                             res.body.error.should.be.an('object');
-                            res.body.error.should.have.all.keys('name', 'message', 'status', 'stack');
+                            res.body.error.should.have.all.keys('name', 'message', 'status', 'stack', 'details');
                             res.body.error.should.have.status(400);
                             res.body.error.name.should.equal('ValidationError');
 
@@ -130,7 +130,7 @@ describe('routes: genres', () => {
                                     res.type.should.be.equal('application/json');
                                     res.body.should.have.property('error');
                                     res.body.error.should.be.an('object');
-                                    res.body.error.should.have.all.keys('name', 'message', 'status', 'stack');
+                                    res.body.error.should.have.all.keys('name', 'message', 'status', 'stack', 'details');
                                     res.body.error.should.have.status(400);
                                     res.body.error.name.should.equal('ValidationError');
                                     done();
@@ -152,7 +152,7 @@ describe('routes: genres', () => {
                             res.type.should.be.equal('application/json');
                             res.body.should.have.property('error');
                             res.body.error.should.be.an('object');
-                            res.body.error.should.have.all.keys('name', 'message', 'status', 'stack');
+                            res.body.error.should.have.all.keys('name', 'message', 'status', 'stack', 'details');
                             res.body.error.should.have.status(400);
                             res.body.error.name.should.equal('ValidationError');
                             done();
@@ -194,7 +194,7 @@ describe('routes: genres', () => {
                     res.type.should.be.equal('application/json');
                     res.body.should.have.property('error');
                     res.body.error.should.be.an('object');
-                    res.body.error.should.have.all.keys('name', 'message', 'status', 'stack');
+                    res.body.error.should.have.all.keys('name', 'message', 'status', 'stack', 'details');
                     res.body.error.should.have.status(404);
                     res.body.error.name.should.equal('NotFoundError');
                     done();
@@ -213,7 +213,7 @@ describe('routes: genres', () => {
                             res.type.should.be.equal('application/json');
                             res.body.should.have.property('error');
                             res.body.error.should.be.an('object');
-                            res.body.error.should.have.all.keys('name', 'message', 'status', 'stack');
+                            res.body.error.should.have.all.keys('name', 'message', 'status', 'stack', 'details');
                             res.body.error.should.have.status(400);
                             res.body.error.name.should.equal('ValidationError');
                             done();
@@ -256,7 +256,7 @@ describe('routes: genres', () => {
                     res.type.should.be.equal('application/json');
                     res.body.should.have.property('error');
                     res.body.error.should.be.an('object');
-                    res.body.error.should.have.all.keys('name', 'message', 'status', 'stack');
+                    res.body.error.should.have.all.keys('name', 'message', 'status', 'stack', 'details');
                     res.body.error.should.have.status(404);
                     res.body.error.name.should.equal('NotFoundError');
                     done();

@@ -36,7 +36,10 @@ router.post(BASEURL, async(ctx) => {
         await createGenreSchema.validate(ctx.request.body, { stripUnknown: true })
             .then((value) => strippedBody = value);
     } catch (error) {
-        return new ValidationError(error.message);
+        return new ValidationError(
+            error.message,
+            error.inner.map(({ path, message }) => ({ path, message })),
+        );
     }
 
     try {
@@ -46,7 +49,9 @@ router.post(BASEURL, async(ctx) => {
     } catch (error) {
         // UNIQUE CONSTRAINT VIOLATION error
         if (error.code === '23505') {
-            return new ValidationError(error.detail);
+            const [field, value] = [...error.detail.matchAll(/\((\w+)\)/g)].map((match) => match[1]);
+            const detail = `${field} '${value}' already exists`;
+            return new ValidationError(detail, [{ path: field, detail }]);
         }
 
         throw error;
@@ -61,7 +66,10 @@ router.put(`${BASEURL}/:id`, async(ctx) => {
         await updateGenreSchema.validate(ctx.request.body, { stripUnknown: true })
             .then((value) => strippedBody = value);
     } catch (error) {
-        return new ValidationError(error.message);
+        return new ValidationError(
+            error.message,
+            error.inner.map(({ path, message }) => ({ path, message })),
+        );
     }
     try {
         const genre = await genreController.update(ctx.params.id, strippedBody);
@@ -72,7 +80,11 @@ router.put(`${BASEURL}/:id`, async(ctx) => {
 
     } catch (error) {
         // UNIQUE CONSTRAINT VIOLATION error
-        if (error.code === '23505') return new ValidationError(error.detail);
+        if (error.code === '23505') {
+            const [field, value] = [...error.detail.matchAll(/\((\w+)\)/g)].map((match) => match[1]);
+            const detail = `${field} '${value}' already exists`;
+            return new ValidationError(detail, [{ path: field, detail }]);
+        }
 
         throw error;
     }
